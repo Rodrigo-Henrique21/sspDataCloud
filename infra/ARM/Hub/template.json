@@ -1,0 +1,703 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_vnet_prd_bra_01_name": {
+            "defaultValue": "vnet-prd-bra-01",
+            "type": "String"
+        },
+        "networkSecurityGroups_nsg_subs_urc_01_name": {
+            "defaultValue": "nsg-subs-urc-01",
+            "type": "String"
+        },
+        "virtualNetworkGateways_vgw_prd_bra_01_name": {
+            "defaultValue": "vgw-prd-bra-01",
+            "type": "String"
+        },
+        "privateDnsZones_pl_auth_azuredatabricks_net_name": {
+            "defaultValue": "pl-auth.azuredatabricks.net",
+            "type": "String"
+        },
+        "publicIPAddresses_ip_publico_vgw_prd_bra_01_name": {
+            "defaultValue": "ip-publico-vgw-prd-bra-01",
+            "type": "String"
+        },
+        "privateDnsZones_privatelink_azuredatabricks_net_name": {
+            "defaultValue": "privatelink.azuredatabricks.net",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_dns_srv_eastUS_prd_001_externalid": {
+            "defaultValue": "/subscriptions/0781bee1-4bd8-4c99-b5d8-de9f4eaf723b/resourceGroups/rg-ua-prd-east-02/providers/Microsoft.Network/virtualNetworks/vnet-dns-srv-eastUS-prd-001",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_ua_prd_bra_01_externalid": {
+            "defaultValue": "/subscriptions/0781bee1-4bd8-4c99-b5d8-de9f4eaf723b/resourceGroups/rg-ua-prd-bra-01/providers/Microsoft.Network/virtualNetworks/vnet-ua-prd-bra-01",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('networkSecurityGroups_nsg_subs_urc_01_name')]",
+            "location": "brazilsouth",
+            "tags": {
+                "projeto": "sspDataCloud",
+                "centro de custo": "infra"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowTagDNS-TCPInbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_urc_01_name'), 'AllowTagDNS-TCPInbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "53",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "172.168.1.36",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowTagDNS-UDPInbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_urc_01_name'), 'AllowTagDNS-UDPInbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "UDP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "53",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "172.168.1.36",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowCidrBlockRDPOutbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_urc_01_name'), 'AllowCidrBlockRDPOutbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "192.168.0.2",
+                            "destinationAddressPrefix": "172.168.2.4",
+                            "access": "Allow",
+                            "priority": 120,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2024-06-01",
+            "name": "[parameters('privateDnsZones_pl_auth_azuredatabricks_net_name')]",
+            "location": "global",
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2024-06-01",
+            "name": "[parameters('privateDnsZones_privatelink_azuredatabricks_net_name')]",
+            "location": "global",
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('publicIPAddresses_ip_publico_vgw_prd_bra_01_name')]",
+            "location": "brazilsouth",
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "ipAddress": "191.232.173.43",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_urc_01_name'), '/AllowCidrBlockRDPOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_urc_01_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "192.168.0.2",
+                "destinationAddressPrefix": "172.168.2.4",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_urc_01_name'), '/AllowTagDNS-TCPInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_urc_01_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "53",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "172.168.1.36",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_urc_01_name'), '/AllowTagDNS-UDPInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_urc_01_name'))]"
+            ],
+            "properties": {
+                "protocol": "UDP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "53",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "172.168.1.36",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azuredatabricks_net_name'), '/adb-1747629595238246.6')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azuredatabricks_net_name'))]"
+            ],
+            "properties": {
+                "metadata": {
+                    "creator": "created by private endpoint pvt-endpoint-dbw-prd-bra-01 with resource guid aeb42401-267d-45bc-ab4f-1e1035d61a96"
+                },
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "172.168.0.4"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'), '/brazilsouth')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "aRecords": [
+                    {
+                        "ipv4Address": "172.168.0.4"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/SOA",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "soaRecord": {
+                    "email": "azureprivatedns-host.microsoft.com",
+                    "expireTime": 2419200,
+                    "host": "azureprivatedns.net",
+                    "minimumTtl": 10,
+                    "refreshTime": 3600,
+                    "retryTime": 300,
+                    "serialNumber": 1
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/SOA",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azuredatabricks_net_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azuredatabricks_net_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "soaRecord": {
+                    "email": "azureprivatedns-host.microsoft.com",
+                    "expireTime": 2419200,
+                    "host": "azureprivatedns.net",
+                    "minimumTtl": 10,
+                    "refreshTime": 3600,
+                    "retryTime": 300,
+                    "serialNumber": 1
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azuredatabricks_net_name'), '/dns-link-vnet-spoke2')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azuredatabricks_net_name'))]"
+            ],
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "registrationEnabled": false,
+                "resolutionPolicy": "Default",
+                "virtualNetwork": {
+                    "id": "[parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_externalid')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azuredatabricks_net_name'), '/gnx2wuiefwufk')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azuredatabricks_net_name'))]"
+            ],
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "registrationEnabled": false,
+                "resolutionPolicy": "Default",
+                "virtualNetwork": {
+                    "id": "[parameters('virtualNetworks_vnet_ua_prd_bra_01_externalid')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'), '/vnet-spoke2-pl-auth-zone')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'))]"
+            ],
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_externalid')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'), '/vnet-spoke-pl-auth-zone')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'))]"
+            ],
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[parameters('virtualNetworks_vnet_ua_prd_bra_01_externalid')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('virtualNetworks_vnet_prd_bra_01_name')]",
+            "location": "brazilsouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_urc_01_name'))]"
+            ],
+            "tags": {
+                "projeto": "sspDataCloud",
+                "centro de custo": "infra"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "172.168.1.0/25"
+                    ]
+                },
+                "encryption": {
+                    "enabled": false,
+                    "enforcement": "AllowUnencrypted"
+                },
+                "privateEndpointVNetPolicies": "Disabled",
+                "subnets": [
+                    {
+                        "name": "GatewaySubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_prd_bra_01_name'), 'GatewaySubnet')]",
+                        "properties": {
+                            "addressPrefixes": [
+                                "172.168.1.0/27"
+                            ],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "PadraoSubNetUrc",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_prd_bra_01_name'), 'PadraoSubNetUrc')]",
+                        "properties": {
+                            "addressPrefixes": [
+                                "172.168.1.32/27"
+                            ],
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_urc_01_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [
+                    {
+                        "name": "prod-hub-spoke-peer01",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_vnet_prd_bra_01_name'), 'prod-hub-spoke-peer01')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[parameters('virtualNetworks_vnet_ua_prd_bra_01_externalid')]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": false,
+                            "allowGatewayTransit": true,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "172.168.0.0/25"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "172.168.0.0/25"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    },
+                    {
+                        "name": "prod-spoke2-hub-peer01",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_vnet_prd_bra_01_name'), 'prod-spoke2-hub-peer01')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_externalid')]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": true,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "172.168.2.0/24"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "172.168.2.0/24"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    }
+                ],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_prd_bra_01_name'), '/GatewaySubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_prd_bra_01_name'))]"
+            ],
+            "properties": {
+                "addressPrefixes": [
+                    "172.168.1.0/27"
+                ],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_prd_bra_01_name'), '/prod-hub-spoke-peer01')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_prd_bra_01_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[parameters('virtualNetworks_vnet_ua_prd_bra_01_externalid')]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": true,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "172.168.0.0/25"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "172.168.0.0/25"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_prd_bra_01_name'), '/prod-spoke2-hub-peer01')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_prd_bra_01_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_externalid')]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": true,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "172.168.2.0/24"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "172.168.2.0/24"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_azuredatabricks_net_name'), '/dns-link-vnet-hub')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_azuredatabricks_net_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_prd_bra_01_name'))]"
+            ],
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "registrationEnabled": false,
+                "resolutionPolicy": "Default",
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_prd_bra_01_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2024-06-01",
+            "name": "[concat(parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'), '/vnet-hub-pl-auth-zone')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_pl_auth_azuredatabricks_net_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_prd_bra_01_name'))]"
+            ],
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_prd_bra_01_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworkGateways",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('virtualNetworkGateways_vgw_prd_bra_01_name')]",
+            "location": "brazilsouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip_publico_vgw_prd_bra_01_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_prd_bra_01_name'), 'GatewaySubnet')]"
+            ],
+            "tags": {
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "enablePrivateIpAddress": false,
+                "ipConfigurations": [
+                    {
+                        "name": "default",
+                        "id": "[concat(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('virtualNetworkGateways_vgw_prd_bra_01_name')), '/ipConfigurations/default')]",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip_publico_vgw_prd_bra_01_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_prd_bra_01_name'), 'GatewaySubnet')]"
+                            }
+                        }
+                    }
+                ],
+                "natRules": [],
+                "virtualNetworkGatewayPolicyGroups": [],
+                "enableBgpRouteTranslationForNat": false,
+                "disableIPSecReplayProtection": false,
+                "sku": {
+                    "name": "VpnGw1",
+                    "tier": "VpnGw1"
+                },
+                "gatewayType": "Vpn",
+                "vpnType": "RouteBased",
+                "enableBgp": false,
+                "activeActive": false,
+                "vpnClientConfiguration": {
+                    "vpnClientAddressPool": {
+                        "addressPrefixes": [
+                            "192.168.0.0/24"
+                        ]
+                    },
+                    "vpnClientProtocols": [
+                        "OpenVPN"
+                    ],
+                    "vpnAuthenticationTypes": [
+                        "AAD"
+                    ],
+                    "vpnClientRootCertificates": [],
+                    "vpnClientRevokedCertificates": [],
+                    "vngClientConnectionConfigurations": [],
+                    "radiusServers": [],
+                    "vpnClientIpsecPolicies": [],
+                    "aadTenant": "https://login.microsoftonline.com/48ac7022-d608-4e96-b6d3-d463287f6104/",
+                    "aadAudience": "41b23e61-6c1e-4545-b367-cd054e0ed4b4",
+                    "aadIssuer": "https://sts.windows.net/48ac7022-d608-4e96-b6d3-d463287f6104/"
+                },
+                "bgpSettings": {
+                    "asn": 65515,
+                    "bgpPeeringAddress": "172.168.1.30",
+                    "peerWeight": 0,
+                    "bgpPeeringAddresses": [
+                        {
+                            "ipconfigurationId": "[concat(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('virtualNetworkGateways_vgw_prd_bra_01_name')), '/ipConfigurations/default')]",
+                            "customBgpIpAddresses": []
+                        }
+                    ]
+                },
+                "customRoutes": {
+                    "addressPrefixes": [
+                        "172.168.2.0/24"
+                    ]
+                },
+                "vpnGatewayGeneration": "Generation1",
+                "allowRemoteVnetTraffic": false,
+                "allowVirtualWanTraffic": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_prd_bra_01_name'), '/PadraoSubNetUrc')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_prd_bra_01_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_urc_01_name'))]"
+            ],
+            "properties": {
+                "addressPrefixes": [
+                    "172.168.1.32/27"
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_urc_01_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        }
+    ]
+}

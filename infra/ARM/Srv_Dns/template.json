@@ -1,0 +1,860 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "actionGroups_RecommendedAlertRules_AG_1_name": {
+            "defaultValue": "RecommendedAlertRules-AG-1",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_dns_srv_eastUS_prd_001_name": {
+            "defaultValue": "vnet-dns-srv-eastUS-prd-001",
+            "type": "String"
+        },
+        "virtualMachines_vm_dns_forwarder_eastUS_prd_001_name": {
+            "defaultValue": "vm-dns-forwarder-eastUS-prd-001",
+            "type": "String"
+        },
+        "networkInterfaces_vm_dns_forwarder_eastus_prd_001401_name": {
+            "defaultValue": "vm-dns-forwarder-eastus-prd-001401",
+            "type": "String"
+        },
+        "networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name": {
+            "defaultValue": "nsg-subnetPadrao-srv-dns-eastUS-prd-001",
+            "type": "String"
+        },
+        "metricAlerts_Percentage_CPU___vm_dns_forwarder_eastUS_prd_001_name": {
+            "defaultValue": "Percentage CPU - vm-dns-forwarder-eastUS-prd-001",
+            "type": "String"
+        },
+        "metricAlerts_VM_Availability___vm_dns_forwarder_eastUS_prd_001_name": {
+            "defaultValue": "VM Availability - vm-dns-forwarder-eastUS-prd-001",
+            "type": "String"
+        },
+        "metricAlerts_Network_In_Total___vm_dns_forwarder_eastUS_prd_001_name": {
+            "defaultValue": "Network In Total - vm-dns-forwarder-eastUS-prd-001",
+            "type": "String"
+        },
+        "metricAlerts_Network_Out_Total___vm_dns_forwarder_eastUS_prd_001_name": {
+            "defaultValue": "Network Out Total - vm-dns-forwarder-eastUS-prd-001",
+            "type": "String"
+        },
+        "metricAlerts_Available_Memory_Bytes___vm_dns_forwarder_eastUS_prd_001_name": {
+            "defaultValue": "Available Memory Bytes - vm-dns-forwarder-eastUS-prd-001",
+            "type": "String"
+        },
+        "metricAlerts_OS_Disk_IOPS_Consumed_Percentage___vm_dns_forwarder_eastUS_prd_001_name": {
+            "defaultValue": "OS Disk IOPS Consumed Percentage - vm-dns-forwarder-eastUS-prd-001",
+            "type": "String"
+        },
+        "metricAlerts_Data_Disk_IOPS_Consumed_Percentage___vm_dns_forwarder_eastUS_prd_001_name": {
+            "defaultValue": "Data Disk IOPS Consumed Percentage - vm-dns-forwarder-eastUS-prd-001",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_prd_bra_01_externalid": {
+            "defaultValue": "/subscriptions/0781bee1-4bd8-4c99-b5d8-de9f4eaf723b/resourceGroups/rg-urc-prd-bra-01/providers/Microsoft.Network/virtualNetworks/vnet-prd-bra-01",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2024-10-01-preview",
+            "name": "[parameters('actionGroups_RecommendedAlertRules_AG_1_name')]",
+            "location": "Global",
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "groupShortName": "recalert1",
+                "enabled": true,
+                "emailReceivers": [
+                    {
+                        "name": "Email0_-EmailAction-",
+                        "emailAddress": "rodrigo.correa@dadossobreaprendizado.cloud",
+                        "useCommonAlertSchema": true
+                    }
+                ],
+                "smsReceivers": [],
+                "webhookReceivers": [],
+                "eventHubReceivers": [],
+                "itsmReceivers": [],
+                "azureAppPushReceivers": [],
+                "automationRunbookReceivers": [],
+                "voiceReceivers": [],
+                "logicAppReceivers": [],
+                "azureFunctionReceivers": [],
+                "armRoleReceivers": [
+                    {
+                        "name": "ArmRole",
+                        "roleId": "749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+                        "useCommonAlertSchema": true
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name')]",
+            "location": "eastus",
+            "tags": {
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowCidrBlockRDPInbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), 'AllowCidrBlockRDPInbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "192.168.0.2",
+                            "destinationAddressPrefix": "172.168.2.4",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowCidrBlockDNS-TCPInbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), 'AllowCidrBlockDNS-TCPInbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "53",
+                            "sourceAddressPrefix": "192.168.0.2",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 120,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowCidrBlockDNS-UDPInbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), 'AllowCidrBlockDNS-UDPInbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "UDP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "53",
+                            "sourceAddressPrefix": "192.168.0.2",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 130,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowCidrBlockDNS-TCPOutbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), 'AllowCidrBlockDNS-TCPOutbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "53",
+                            "sourceAddressPrefix": "172.168.2.4",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 140,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowCidrBlockDNS-UDPOutbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), 'AllowCidrBlockDNS-UDPOutbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "UDP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "53",
+                            "sourceAddressPrefix": "172.168.2.4",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 141,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_vm_dns_forwarder_eastus_prd_001401_name'))]"
+            ],
+            "tags": {
+                "application": "SrvDns",
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B4ms"
+                },
+                "additionalCapabilities": {
+                    "hibernationEnabled": false
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-datacenter-gensecond",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'), '_OsDisk_1_89b18bb680944a69a1d47c75c721316e')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'), '_OsDisk_1_89b18bb680944a69a1d47c75c721316e'))]"
+                        },
+                        "deleteOption": "Delete",
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "SCSI"
+                },
+                "osProfile": {
+                    "computerName": "vm-dns-forwarde",
+                    "adminUsername": "rodrigo",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault",
+                            "enableHotpatching": false
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "securityProfile": {
+                    "uefiSettings": {
+                        "secureBootEnabled": true,
+                        "vTpmEnabled": true
+                    },
+                    "securityType": "TrustedLaunch"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_vm_dns_forwarder_eastus_prd_001401_name'))]",
+                            "properties": {
+                                "deleteOption": "Delete"
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('networkInterfaces_vm_dns_forwarder_eastus_prd_001401_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_name'), 'PadraoSubUa2')]"
+            ],
+            "tags": {
+                "application": "SrvDns",
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_vm_dns_forwarder_eastus_prd_001401_name')), '/ipConfigurations/ipconfig1')]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAddress": "172.168.2.4",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_name'), 'PadraoSubUa2')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), '/AllowCidrBlockDNS-TCPInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "53",
+                "sourceAddressPrefix": "192.168.0.2",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), '/AllowCidrBlockDNS-TCPOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "53",
+                "sourceAddressPrefix": "172.168.2.4",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 140,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), '/AllowCidrBlockDNS-UDPInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'))]"
+            ],
+            "properties": {
+                "protocol": "UDP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "53",
+                "sourceAddressPrefix": "192.168.0.2",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), '/AllowCidrBlockDNS-UDPOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'))]"
+            ],
+            "properties": {
+                "protocol": "UDP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "53",
+                "sourceAddressPrefix": "172.168.2.4",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 141,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'), '/AllowCidrBlockRDPInbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "192.168.0.2",
+                "destinationAddressPrefix": "172.168.2.4",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'))]"
+            ],
+            "tags": {
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "172.168.2.0/24"
+                    ]
+                },
+                "encryption": {
+                    "enabled": false,
+                    "enforcement": "AllowUnencrypted"
+                },
+                "privateEndpointVNetPolicies": "Disabled",
+                "subnets": [
+                    {
+                        "name": "PadraoSubUa2",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_name'), 'PadraoSubUa2')]",
+                        "properties": {
+                            "addressPrefixes": [
+                                "172.168.2.0/24"
+                            ],
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [
+                    {
+                        "name": "prod-hub-spoke2-peer01",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_name'), 'prod-hub-spoke2-peer01')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[parameters('virtualNetworks_vnet_prd_bra_01_externalid')]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": false,
+                            "useRemoteGateways": true,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "172.168.1.0/25"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "172.168.1.0/25"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    }
+                ],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_name'), '/prod-hub-spoke2-peer01')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[parameters('virtualNetworks_vnet_prd_bra_01_externalid')]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": true,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "172.168.1.0/25"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "172.168.1.0/25"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('metricAlerts_Available_Memory_Bytes___vm_dns_forwarder_eastUS_prd_001_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+            ],
+            "tags": {
+                "alertRuleCreatedWithAlertsRecommendations": "true",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]"
+                ],
+                "evaluationFrequency": "PT5M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 1000000000,
+                            "name": "Metric1",
+                            "metricName": "Available Memory Bytes",
+                            "operator": "LessThan",
+                            "timeAggregation": "Average",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('metricAlerts_Data_Disk_IOPS_Consumed_Percentage___vm_dns_forwarder_eastUS_prd_001_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+            ],
+            "tags": {
+                "alertRuleCreatedWithAlertsRecommendations": "true",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]"
+                ],
+                "evaluationFrequency": "PT5M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 95,
+                            "name": "Metric1",
+                            "metricName": "Data Disk IOPS Consumed Percentage",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Average",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('metricAlerts_Network_In_Total___vm_dns_forwarder_eastUS_prd_001_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+            ],
+            "tags": {
+                "alertRuleCreatedWithAlertsRecommendations": "true",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]"
+                ],
+                "evaluationFrequency": "PT5M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "alertSensitivity": "Medium",
+                            "failingPeriods": {
+                                "numberOfEvaluationPeriods": 4,
+                                "minFailingPeriodsToAlert": 4
+                            },
+                            "name": "Metric1",
+                            "metricName": "Network In Total",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Total",
+                            "criterionType": "DynamicThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('metricAlerts_Network_Out_Total___vm_dns_forwarder_eastUS_prd_001_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+            ],
+            "tags": {
+                "alertRuleCreatedWithAlertsRecommendations": "true",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]"
+                ],
+                "evaluationFrequency": "PT5M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "alertSensitivity": "Medium",
+                            "failingPeriods": {
+                                "numberOfEvaluationPeriods": 4,
+                                "minFailingPeriodsToAlert": 4
+                            },
+                            "name": "Metric1",
+                            "metricName": "Network Out Total",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Total",
+                            "criterionType": "DynamicThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('metricAlerts_OS_Disk_IOPS_Consumed_Percentage___vm_dns_forwarder_eastUS_prd_001_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+            ],
+            "tags": {
+                "alertRuleCreatedWithAlertsRecommendations": "true",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]"
+                ],
+                "evaluationFrequency": "PT5M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 95,
+                            "name": "Metric1",
+                            "metricName": "OS Disk IOPS Consumed Percentage",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Average",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('metricAlerts_Percentage_CPU___vm_dns_forwarder_eastUS_prd_001_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+            ],
+            "tags": {
+                "alertRuleCreatedWithAlertsRecommendations": "true",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]"
+                ],
+                "evaluationFrequency": "PT5M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 80,
+                            "name": "Metric1",
+                            "metricName": "Percentage CPU",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Average",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('metricAlerts_VM_Availability___vm_dns_forwarder_eastUS_prd_001_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+            ],
+            "tags": {
+                "alertRuleCreatedWithAlertsRecommendations": "true",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_dns_forwarder_eastUS_prd_001_name'))]"
+                ],
+                "evaluationFrequency": "PT5M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 1,
+                            "name": "Metric1",
+                            "metricName": "VmAvailabilityMetric",
+                            "operator": "LessThan",
+                            "timeAggregation": "Average",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_RecommendedAlertRules_AG_1_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_name'), '/PadraoSubUa2')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_dns_srv_eastUS_prd_001_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'))]"
+            ],
+            "properties": {
+                "addressPrefixes": [
+                    "172.168.2.0/24"
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        }
+    ]
+}

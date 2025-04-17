@@ -1,0 +1,820 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaces_dbw_prd_bra_01_name": {
+            "defaultValue": "dbw-prd-bra-01",
+            "type": "String"
+        },
+        "natGateways_natgw_bra_prod_01_name": {
+            "defaultValue": "natgw-bra-prod-01",
+            "type": "String"
+        },
+        "publicIPAddresses_padraosubnetua_name": {
+            "defaultValue": "padraosubnetua",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_ua_prd_bra_01_name": {
+            "defaultValue": "vnet-ua-prd-bra-01",
+            "type": "String"
+        },
+        "networkSecurityGroups_nsg_subs_ua_01_name": {
+            "defaultValue": "nsg-subs-ua-01",
+            "type": "String"
+        },
+        "privateEndpoints_pvt_endpoint_dbw_prd_bra_01_name": {
+            "defaultValue": "pvt-endpoint-dbw-prd-bra-01",
+            "type": "String"
+        },
+        "privateDnsZones_privatelink_azuredatabricks_net_externalid": {
+            "defaultValue": "/subscriptions/0781bee1-4bd8-4c99-b5d8-de9f4eaf723b/resourceGroups/rg-urc-prd-bra-01/providers/Microsoft.Network/privateDnsZones/privatelink.azuredatabricks.net",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_prd_bra_01_externalid": {
+            "defaultValue": "/subscriptions/0781bee1-4bd8-4c99-b5d8-de9f4eaf723b/resourceGroups/rg-urc-prd-bra-01/providers/Microsoft.Network/virtualNetworks/vnet-prd-bra-01",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('networkSecurityGroups_nsg_subs_ua_01_name')]",
+            "location": "brazilsouth",
+            "tags": {
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowTagHTTPSOutbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_ua_01_name'), 'AllowTagHTTPSOutbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "AzureDatabricks",
+                            "destinationAddressPrefix": "Internet",
+                            "access": "Allow",
+                            "priority": 104,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowTagHTTPOutbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_ua_01_name'), 'AllowTagHTTPOutbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "AzureDatabricks",
+                            "destinationAddressPrefix": "Internet",
+                            "access": "Allow",
+                            "priority": 105,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowTagDNS-TCPOutbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_ua_01_name'), 'AllowTagDNS-TCPOutbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "53",
+                            "sourceAddressPrefix": "AzureDatabricks",
+                            "destinationAddressPrefix": "Internet",
+                            "access": "Allow",
+                            "priority": 106,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-inbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_ua_01_name'), 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-inbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "Required for worker nodes communication within a cluster.",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-outbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_ua_01_name'), 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-outbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "Required for worker nodes communication within a cluster.",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-sql",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_ua_01_name'), 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-sql')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "Required for workers communication with Azure SQL services.",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3306",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "Sql",
+                            "access": "Allow",
+                            "priority": 101,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-storage",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_ua_01_name'), 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-storage')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "Required for workers communication with Azure Storage services.",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "Storage",
+                            "access": "Allow",
+                            "priority": 102,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-eventhub",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_nsg_subs_ua_01_name'), 'Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-eventhub')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "Required for worker communication with Azure Eventhub services.",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "9093",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "EventHub",
+                            "access": "Allow",
+                            "priority": 103,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Databricks/workspaces",
+            "apiVersion": "2024-09-01-preview",
+            "name": "[parameters('workspaces_dbw_prd_bra_01_name')]",
+            "location": "brazilsouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'))]"
+            ],
+            "tags": {
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "sku": {
+                "name": "premium"
+            },
+            "properties": {
+                "defaultCatalog": {
+                    "initialType": "UnityCatalog"
+                },
+                "publicNetworkAccess": "Disabled",
+                "requiredNsgRules": "NoAzureDatabricksRules",
+                "managedResourceGroupId": "[concat('/subscriptions/0781bee1-4bd8-4c99-b5d8-de9f4eaf723b/resourceGroups/databricks-rg-', parameters('workspaces_dbw_prd_bra_01_name'), '-pfkgmezdhba6m')]",
+                "parameters": {
+                    "customPrivateSubnetName": {
+                        "value": "[concat('subnet-privada-dbw-', parameters('workspaces_dbw_prd_bra_01_name'))]"
+                    },
+                    "customPublicSubnetName": {
+                        "value": "[concat('subnet-publica-', parameters('workspaces_dbw_prd_bra_01_name'))]"
+                    },
+                    "customVirtualNetworkId": {
+                        "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'))]"
+                    },
+                    "enableNoPublicIp": {
+                        "value": true
+                    },
+                    "prepareEncryption": {
+                        "value": false
+                    },
+                    "requireInfrastructureEncryption": {
+                        "value": false
+                    },
+                    "storageAccountName": {
+                        "value": "dbstorageulcpdypbym6sc"
+                    },
+                    "storageAccountSkuName": {
+                        "value": "Standard_GRS"
+                    }
+                },
+                "authorizations": [
+                    {
+                        "principalId": "9a74af6f-d153-4348-988a-e2672920bee9",
+                        "roleDefinitionId": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+                    }
+                ],
+                "createdBy": {},
+                "updatedBy": {}
+            }
+        },
+        {
+            "type": "Microsoft.Databricks/workspaces/privateEndpointConnections",
+            "apiVersion": "2024-09-01-preview",
+            "name": "[concat(parameters('workspaces_dbw_prd_bra_01_name'), '/pvt-endpoint-', parameters('workspaces_dbw_prd_bra_01_name'), '_9bd59577-05ee-4c70-875f-446525ad90a0')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Databricks/workspaces', parameters('workspaces_dbw_prd_bra_01_name'))]"
+            ],
+            "properties": {
+                "privateEndpoint": {},
+                "groupIds": [
+                    "databricks_ui_api"
+                ],
+                "privateLinkServiceConnectionState": {
+                    "status": "Approved",
+                    "description": "Auto-approved",
+                    "actionsRequired": "None"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/natGateways",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('natGateways_natgw_bra_prod_01_name')]",
+            "location": "brazilsouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_padraosubnetua_name'))]"
+            ],
+            "tags": {
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "idleTimeoutInMinutes": 4,
+                "publicIpAddresses": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_padraosubnetua_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_ua_01_name'), '/AllowTagDNS-TCPOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "53",
+                "sourceAddressPrefix": "AzureDatabricks",
+                "destinationAddressPrefix": "Internet",
+                "access": "Allow",
+                "priority": 106,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_ua_01_name'), '/AllowTagHTTPOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "sourceAddressPrefix": "AzureDatabricks",
+                "destinationAddressPrefix": "Internet",
+                "access": "Allow",
+                "priority": 105,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_ua_01_name'), '/AllowTagHTTPSOutbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "443",
+                "sourceAddressPrefix": "AzureDatabricks",
+                "destinationAddressPrefix": "Internet",
+                "access": "Allow",
+                "priority": 104,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_ua_01_name'), '/Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-eventhub')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+            ],
+            "properties": {
+                "description": "Required for worker communication with Azure Eventhub services.",
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "9093",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "EventHub",
+                "access": "Allow",
+                "priority": 103,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_ua_01_name'), '/Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-sql')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+            ],
+            "properties": {
+                "description": "Required for workers communication with Azure SQL services.",
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3306",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "Sql",
+                "access": "Allow",
+                "priority": 101,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_ua_01_name'), '/Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-storage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+            ],
+            "properties": {
+                "description": "Required for workers communication with Azure Storage services.",
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "443",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "Storage",
+                "access": "Allow",
+                "priority": 102,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_ua_01_name'), '/Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-inbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+            ],
+            "properties": {
+                "description": "Required for worker nodes communication within a cluster.",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('networkSecurityGroups_nsg_subs_ua_01_name'), '/Microsoft.Databricks-workspaces_UseOnly_databricks-worker-to-worker-outbound')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+            ],
+            "properties": {
+                "description": "Required for worker nodes communication within a cluster.",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "destinationAddressPrefix": "VirtualNetwork",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Outbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('privateEndpoints_pvt_endpoint_dbw_prd_bra_01_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_pvt_endpoint_dbw_prd_bra_01_name'))]"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "privatelink.azuredatabricks.net",
+                        "properties": {
+                            "privateDnsZoneId": "[parameters('privateDnsZones_privatelink_azuredatabricks_net_externalid')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('publicIPAddresses_padraosubnetua_name')]",
+            "location": "brazilsouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/natGateways', parameters('natGateways_natgw_bra_prod_01_name'))]"
+            ],
+            "tags": {
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "natGateway": {
+                    "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGateways_natgw_bra_prod_01_name'))]"
+                },
+                "ipAddress": "4.201.153.146",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), '/prod-spoke-hub-peer02')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[parameters('virtualNetworks_vnet_prd_bra_01_externalid')]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": true,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "172.168.1.0/25"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "172.168.1.0/25"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('privateEndpoints_pvt_endpoint_dbw_prd_bra_01_name')]",
+            "location": "brazilsouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Databricks/workspaces', parameters('workspaces_dbw_prd_bra_01_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'PadraoSubNetUa')]"
+            ],
+            "tags": {
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[concat(parameters('privateEndpoints_pvt_endpoint_dbw_prd_bra_01_name'), '_9bd59577-05ee-4c70-875f-446525ad90a0')]",
+                        "id": "[concat(resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_pvt_endpoint_dbw_prd_bra_01_name')), concat('/privateLinkServiceConnections/', parameters('privateEndpoints_pvt_endpoint_dbw_prd_bra_01_name'), '_9bd59577-05ee-4c70-875f-446525ad90a0'))]",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.Databricks/workspaces', parameters('workspaces_dbw_prd_bra_01_name'))]",
+                            "groupIds": [
+                                "databricks_ui_api"
+                            ],
+                            "privateLinkServiceConnectionState": {
+                                "status": "Approved",
+                                "description": "Auto-approved",
+                                "actionsRequired": "None"
+                            }
+                        }
+                    }
+                ],
+                "manualPrivateLinkServiceConnections": [],
+                "subnet": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'PadraoSubNetUa')]"
+                },
+                "ipConfigurations": [],
+                "customDnsConfigs": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-05-01",
+            "name": "[parameters('virtualNetworks_vnet_ua_prd_bra_01_name')]",
+            "location": "brazilsouth",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]",
+                "[resourceId('Microsoft.Network/natGateways', parameters('natGateways_natgw_bra_prod_01_name'))]"
+            ],
+            "tags": {
+                "centro de custo": "infra",
+                "projeto": "sspDataCloud"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "172.168.0.0/25"
+                    ]
+                },
+                "encryption": {
+                    "enabled": false,
+                    "enforcement": "AllowUnencrypted"
+                },
+                "privateEndpointVNetPolicies": "Disabled",
+                "subnets": [
+                    {
+                        "name": "PadraoSubNetUa",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'PadraoSubNetUa')]",
+                        "properties": {
+                            "addressPrefixes": [
+                                "172.168.0.0/27"
+                            ],
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+                            },
+                            "natGateway": {
+                                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGateways_natgw_bra_prod_01_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "defaultOutboundAccess": false
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "subnet-publica-dbw-prd-bra-01",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'subnet-publica-dbw-prd-bra-01')]",
+                        "properties": {
+                            "addressPrefix": "172.168.0.32/27",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+                            },
+                            "delegations": [
+                                {
+                                    "name": "databricks-del-yfqnl6zyqf2l2",
+                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'subnet-publica-dbw-prd-bra-01'), '/delegations/databricks-del-yfqnl6zyqf2l2')]",
+                                    "properties": {
+                                        "serviceName": "Microsoft.Databricks/workspaces"
+                                    },
+                                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                                }
+                            ],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "subnet-privada-dbw-dbw-prd-bra-01",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'subnet-privada-dbw-dbw-prd-bra-01')]",
+                        "properties": {
+                            "addressPrefix": "172.168.0.64/27",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+                            },
+                            "natGateway": {
+                                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGateways_natgw_bra_prod_01_name'))]"
+                            },
+                            "delegations": [
+                                {
+                                    "name": "databricks-del-guadjbsmtjaae",
+                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'subnet-privada-dbw-dbw-prd-bra-01'), '/delegations/databricks-del-guadjbsmtjaae')]",
+                                    "properties": {
+                                        "serviceName": "Microsoft.Databricks/workspaces"
+                                    },
+                                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                                }
+                            ],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [
+                    {
+                        "name": "prod-spoke-hub-peer02",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'prod-spoke-hub-peer02')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[parameters('virtualNetworks_vnet_prd_bra_01_externalid')]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": false,
+                            "useRemoteGateways": true,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "172.168.1.0/25"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "172.168.1.0/25"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    }
+                ],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), '/subnet-publica-dbw-prd-bra-01')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "172.168.0.32/27",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+                },
+                "delegations": [
+                    {
+                        "name": "databricks-del-yfqnl6zyqf2l2",
+                        "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'subnet-publica-dbw-prd-bra-01'), '/delegations/databricks-del-yfqnl6zyqf2l2')]",
+                        "properties": {
+                            "serviceName": "Microsoft.Databricks/workspaces"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                    }
+                ],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), '/PadraoSubNetUa')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]",
+                "[resourceId('Microsoft.Network/natGateways', parameters('natGateways_natgw_bra_prod_01_name'))]"
+            ],
+            "properties": {
+                "addressPrefixes": [
+                    "172.168.0.0/27"
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+                },
+                "natGateway": {
+                    "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGateways_natgw_bra_prod_01_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-05-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), '/subnet-privada-dbw-dbw-prd-bra-01')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]",
+                "[resourceId('Microsoft.Network/natGateways', parameters('natGateways_natgw_bra_prod_01_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "172.168.0.64/27",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_subs_ua_01_name'))]"
+                },
+                "natGateway": {
+                    "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGateways_natgw_bra_prod_01_name'))]"
+                },
+                "delegations": [
+                    {
+                        "name": "databricks-del-guadjbsmtjaae",
+                        "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_ua_prd_bra_01_name'), 'subnet-privada-dbw-dbw-prd-bra-01'), '/delegations/databricks-del-guadjbsmtjaae')]",
+                        "properties": {
+                            "serviceName": "Microsoft.Databricks/workspaces"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                    }
+                ],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        }
+    ]
+}

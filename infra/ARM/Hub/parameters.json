@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_vnet_prd_bra_01_name": {
+            "value": null
+        },
+        "networkSecurityGroups_nsg_subs_urc_01_name": {
+            "value": null
+        },
+        "virtualNetworkGateways_vgw_prd_bra_01_name": {
+            "value": null
+        },
+        "privateDnsZones_pl_auth_azuredatabricks_net_name": {
+            "value": null
+        },
+        "publicIPAddresses_ip_publico_vgw_prd_bra_01_name": {
+            "value": null
+        },
+        "privateDnsZones_privatelink_azuredatabricks_net_name": {
+            "value": null
+        },
+        "virtualNetworks_vnet_dns_srv_eastUS_prd_001_externalid": {
+            "value": null
+        },
+        "virtualNetworks_vnet_ua_prd_bra_01_externalid": {
+            "value": null
+        }
+    }
+}
