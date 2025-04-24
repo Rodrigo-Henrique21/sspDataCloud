@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaces_dbw_prd_bra_01_name": {
+            "value": null
+        },
+        "natGateways_natgw_bra_prod_01_name": {
+            "value": null
+        },
+        "publicIPAddresses_padraosubnetua_name": {
+            "value": null
+        },
+        "virtualNetworks_vnet_ua_prd_bra_01_name": {
+            "value": null
+        },
+        "networkSecurityGroups_nsg_subs_ua_01_name": {
+            "value": null
+        },
+        "privateEndpoints_pvt_endpoint_dbw_prd_bra_01_name": {
+            "value": null
+        },
+        "privateDnsZones_privatelink_azuredatabricks_net_externalid": {
+            "value": null
+        },
+        "virtualNetworks_vnet_prd_bra_01_externalid": {
+            "value": null
+        }
+    }
+}

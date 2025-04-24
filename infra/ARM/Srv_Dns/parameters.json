@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "actionGroups_RecommendedAlertRules_AG_1_name": {
+            "value": null
+        },
+        "virtualNetworks_vnet_dns_srv_eastUS_prd_001_name": {
+            "value": null
+        },
+        "virtualMachines_vm_dns_forwarder_eastUS_prd_001_name": {
+            "value": null
+        },
+        "networkInterfaces_vm_dns_forwarder_eastus_prd_001401_name": {
+            "value": null
+        },
+        "networkSecurityGroups_nsg_subnetPadrao_srv_dns_eastUS_prd_001_name": {
+            "value": null
+        },
+        "metricAlerts_Percentage_CPU___vm_dns_forwarder_eastUS_prd_001_name": {
+            "value": null
+        },
+        "metricAlerts_VM_Availability___vm_dns_forwarder_eastUS_prd_001_name": {
+            "value": null
+        },
+        "metricAlerts_Network_In_Total___vm_dns_forwarder_eastUS_prd_001_name": {
+            "value": null
+        },
+        "metricAlerts_Network_Out_Total___vm_dns_forwarder_eastUS_prd_001_name": {
+            "value": null
+        },
+        "metricAlerts_Available_Memory_Bytes___vm_dns_forwarder_eastUS_prd_001_name": {
+            "value": null
+        },
+        "metricAlerts_OS_Disk_IOPS_Consumed_Percentage___vm_dns_forwarder_eastUS_prd_001_name": {
+            "value": null
+        },
+        "metricAlerts_Data_Disk_IOPS_Consumed_Percentage___vm_dns_forwarder_eastUS_prd_001_name": {
+            "value": null
+        },
+        "virtualNetworks_vnet_prd_bra_01_externalid": {
+            "value": null
+        }
+    }
+}
